@@ -116,6 +116,7 @@ export async function PUT(request: NextRequest) {
     const body = await request.json();
     const variants = body.variants;
     delete body.variants;
+    delete body._id;
     await productColl.updateOne(
       { _id: new ObjectId(productId) },
       { $set: body },
@@ -132,11 +133,15 @@ export async function PUT(request: NextRequest) {
     for (let i of variants) {
       if (inString.includes(i._id)) {
         const id = new ObjectId(i._id);
-        await variantColl.updateOne({ _id: id }, { $set: i });
+        delete i._id;
+        await variantColl.updateOne(
+          { _id: id },
+          { $set: { ...i, productId: new ObjectId(productId) } },
+        );
       } else {
         const insertedId = await variantColl.insertOne({
           ...i,
-          productId: body._id,
+          productId: new ObjectId(productId),
           _id: new ObjectId(),
           createdAt: new Date(),
         });
@@ -153,6 +158,40 @@ export async function PUT(request: NextRequest) {
         data: { ...body, _id: body._id, variants: variants },
         id: productId,
       },
+      { status: 200 },
+    );
+  } catch (error: any) {
+    return NextResponse.json(
+      { message: error.message, status: 500 },
+      { status: 500 },
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const productId = request.nextUrl.searchParams.get("id");
+    if (!productId) {
+      return NextResponse.json(
+        { message: "Product ID is required", status: 400 },
+        { status: 400 },
+      );
+    }
+    const db = await getTenantDb();
+    const productColl = db.collection("products");
+    await productColl.updateOne(
+      { _id: new ObjectId(productId) },
+      { $set: { status: "archived" } },
+    );
+
+    const variantColl = db.collection("variants");
+    await variantColl.updateMany(
+      { productId: new ObjectId(productId) },
+      { $set: { status: "inactive" } },
+    );
+
+    return NextResponse.json(
+      { message: "Product deleted successfully", status: 200, id: productId },
       { status: 200 },
     );
   } catch (error: any) {

@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/components/AdminAuthProvider";
 import { canRoleMutateUi } from "@/lib/role-scope";
-import CategoryImportModal from "@/components/categories/CategoryImportModal";
+import { ImportModal } from "@/components/mongoDb/ImportModal";
 import {
   CATEGORY_TEMPLATE_OPTIONS,
   defaultCategoryTemplateForType,
@@ -1202,11 +1202,10 @@ export default function CategoriesPage() {
         )}
       </div>
 
-      {/* Import Modal */}
-      <CategoryImportModal
+      <ImportModal
+        type="category"
         isOpen={showImportModal}
         onClose={() => setShowImportModal(false)}
-        onSuccess={() => dispatch(fetchCategories({ includeCounts: "1" }))}
       />
     </div>
   );

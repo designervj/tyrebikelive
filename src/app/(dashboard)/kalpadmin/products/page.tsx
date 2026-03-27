@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ProductImportModal } from "@/components/products/ProductImportModal";
+import { ImportModal } from "@/components/mongoDb/ImportModal";
 import {
   isEducationContextActive,
   isTravelContextActive,
@@ -34,6 +34,9 @@ import { useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
 import { useDispatch } from "react-redux";
 import { setCurrentProduct } from "@/redux/slices/products/productsSlices";
+import { deleteProduct } from "@/redux/slices/products/productsThunk";
+import { useToast } from "@/hooks/useToast";
+import { Toast } from "./studio/components/Toast";
 
 type NavOverride = {
   label?: string;
@@ -218,7 +221,7 @@ export default function ProductsPage() {
   const { currentProfile, user } = useAuth();
   const canMutate = canRoleMutateUi(currentProfile);
   const router = useRouter();
-
+  const { toast, showToast } = useToast();
   const {
     allProducts: products,
     loading,
@@ -252,8 +255,12 @@ export default function ProductsPage() {
   const handleDelete = async (id: string) => {
     if (!canMutate) return;
     if (!confirm("Delete this product and all its variants?")) return;
-    await fetch(`/api/ecommerce/products/${id}`, { method: "DELETE" });
-    // fetchProducts();
+    const action: any = await dispatch(deleteProduct(id));
+    if (deleteProduct.fulfilled.match(action)) {
+      showToast("Product deleted successfully");
+    } else {
+      showToast("Failed to delete");
+    }
   };
 
   const handleSlugBackfill = async () => {
@@ -424,6 +431,7 @@ export default function ProductsPage() {
 
   return (
     <div className="min-h-screen bg-[#f6f8fb] p-4 md:p-6">
+      <Toast toast={toast} />
       <div className="mx-auto max-w-[1500px] space-y-6">
         {!canMutate && (
           <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
@@ -773,12 +781,10 @@ export default function ProductsPage() {
           )}
         </section>
 
-        <ProductImportModal
+        <ImportModal
+          type="product"
           isOpen={isImportModalOpen}
           onClose={() => setIsImportModalOpen(false)}
-          onSuccess={() => {
-            // fetchProducts();
-          }}
         />
       </div>
     </div>

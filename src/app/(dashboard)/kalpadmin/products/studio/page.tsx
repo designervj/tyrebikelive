@@ -36,6 +36,7 @@ import {
   buildVariantCombinations,
   readTenantKeyFromCookie,
   readFileAsDataUrl,
+  generateSKUWithBaseSKU,
 } from "./utils";
 
 import { GeneralInformation } from "./components/GeneralInformation";
@@ -44,6 +45,8 @@ import { VisualMedia } from "./components/VisualMedia";
 import { OptionConfiguration } from "./components/OptionConfiguration";
 import { VariantMatrix } from "./components/VariantMatrix";
 import { PublicationSidebar } from "./components/PublicationSidebar";
+import { useToast } from "@/hooks/useToast";
+import { Toast } from "./components/Toast";
 
 function ProductStudioContent() {
   const { currentProfile } = useAuth();
@@ -62,6 +65,7 @@ function ProductStudioContent() {
   const { allattributes, attributeLoading } = useSelector(
     (state: RootState) => state.attributes,
   );
+  
   const {
     currentProduct: form,
     loading: productLoading,
@@ -75,10 +79,6 @@ function ProductStudioContent() {
     Array<{ _id: string; filename?: string; url?: string }>
   >([]);
   const [sourceEnabled, setSourceEnabled] = useState(false);
-  const [toast, setToast] = useState<{
-    message: string;
-    type: "success" | "error" | "info";
-  } | null>(null);
   const [galleryUrlDraft, setGalleryUrlDraft] = useState("");
   const [productSlug, setProductSlug] = useState("");
 
@@ -87,15 +87,7 @@ function ProductStudioContent() {
     [allProducts, editId],
   );
 
-  console.log("====>>", form);
-
-  const showToast = (
-    message: string,
-    type: "success" | "error" | "info" = "success",
-  ) => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 3000);
-  };
+  const { toast, showToast } = useToast();
 
   // Initial Load
   useEffect(() => {
@@ -185,15 +177,23 @@ function ProductStudioContent() {
   const regenerateVariants = () => {
     if (!form) return;
     const combos = buildVariantCombinations(form.options);
-    const currentMap = new Map(form.variants.map((v) => [v._id, v]));
+    const currentMap = form.variants.map((v) => [
+      v._id,
+      Object.values(v.optionValues).join("-"),
+    ]);
     const nextVariants: VariantRow[] = combos.map((combo, index) => {
-      const key = composeVariantKey(combo) || `v-${index}`;
-      const existing = currentMap.get(key);
+      const keystring = Object.values(combo).join("-");
+      const findKey = currentMap.find((item) => item[1] === keystring);
+      const existing = form.variants.find((v) => v._id === findKey?.[0]);
+
       return {
         _id: existing?._id || `v-${index}`,
-        title: buildCombinationTitle(combo) || `Variant ${index + 1}`,
+        title:
+          existing?.title ||
+          buildCombinationTitle(combo) ||
+          `Variant ${index + 1}`,
         optionValues: combo,
-        sku: existing?.sku || `${form.sku}-${index + 1}`,
+        sku: existing?.sku || generateSKUWithBaseSKU(form.sku, combo),
         price: existing?.price || form.pricing.price,
         stock: existing?.stock || "0",
         productId: existing?.productId || "",
@@ -202,7 +202,6 @@ function ProductStudioContent() {
       };
     });
 
-    console.log("===>>>nextVariants", nextVariants);
     dispatch(setProductFormField({ field: "variants", value: nextVariants }));
     showToast(`Generated ${nextVariants.length} variants`);
   };
@@ -298,24 +297,7 @@ function ProductStudioContent() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-4 space-y-4 animate-in fade-in duration-500">
       {/* Toast */}
-      <AnimatePresence>
-        {toast && (
-          <motion.div
-            initial={{ opacity: 0, y: -20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, scale: 0.95 }}
-            className="fixed top-4 right-4 z-[100] flex items-center gap-2 px-4 py-2.5 rounded-xl shadow-xl border bg-white border-slate-200 text-slate-900"
-          >
-            {toast.type === "success" && (
-              <Check className="text-emerald-500" size={16} />
-            )}
-            {toast.type === "error" && (
-              <X className="text-rose-500" size={16} />
-            )}
-            <span className="text-xs font-bold">{toast.message}</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <Toast toast={toast} />
 
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-200">

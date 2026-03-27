@@ -139,3 +139,15 @@ export function readTenantKeyFromCookie(): string {
   const match = document.cookie.match(/(?:^|; )kalp_active_tenant=([^;]+)/);
   return match ? decodeURIComponent(match[1]) : "";
 }
+
+export const generateSKUWithBaseSKU = (
+  baseSKU: string,
+  obj: Record<string, string>,
+) => {
+  const generated = Object.values(obj)
+    .map((words) => {
+      return words.slice(0, 2);
+    })
+    .join("-");
+  return baseSKU + "-" + generated;
+};

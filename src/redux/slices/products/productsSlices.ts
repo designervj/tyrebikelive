@@ -1,5 +1,10 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { fetchProducts, fetchProductById, saveProduct } from "./productsThunk";
+import {
+  fetchProducts,
+  fetchProductById,
+  saveProduct,
+  deleteProduct,
+} from "./productsThunk";
 import {
   ProductOption,
   ProductGalleryItem,
@@ -189,6 +194,20 @@ const productsSlice = createSlice({
       })
       .addCase(saveProduct.rejected, (state, action) => {
         state.saving = false;
+        state.error = action.payload as string;
+      })
+      .addCase(deleteProduct.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(deleteProduct.fulfilled, (state, action) => {
+        state.loading = false;
+        const id = action.payload.id;
+        state.allProducts = state.allProducts.map((product) =>
+          product._id === id ? { ...product, status: "archived" } : product,
+        );
+      })
+      .addCase(deleteProduct.rejected, (state, action) => {
+        state.loading = false;
         state.error = action.payload as string;
       });
   },

@@ -38,7 +38,7 @@ export const saveProduct = createAsyncThunk(
   ) => {
     try {
       const endpoint = id
-        ? `/api/ecommerce/products/${id}`
+        ? `/api/ecommerce/products?id=${id}`
         : "/api/ecommerce/products";
       const method = id ? "PUT" : "POST";
 
@@ -54,6 +54,22 @@ export const saveProduct = createAsyncThunk(
       }
 
       return await response.json();
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
+  },
+);
+
+export const deleteProduct = createAsyncThunk(
+  "products/delete",
+  async (id: string, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`/api/ecommerce/products?id=${id}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) throw new Error("Failed to delete product");
+      const data = await response.json();
+      return data;
     } catch (error: any) {
       return rejectWithValue(error.message);
     }

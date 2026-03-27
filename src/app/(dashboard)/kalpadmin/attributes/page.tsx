@@ -25,6 +25,7 @@ import {
   AttributeSetDraft,
   AttributeSetRecord,
 } from "@/redux/slices/attributes/attributeSlices";
+import { ImportModal } from "@/components/mongoDb/ImportModal";
 import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
 import {
@@ -903,6 +904,11 @@ export default function EcommerceAttributesPage() {
           </div>
         </div>
       )}
+      <ImportModal
+        type="attribute"
+        isOpen={showImportModal}
+        onClose={() => setShowImportModal(false)}
+      />
     </div>
   );
 }

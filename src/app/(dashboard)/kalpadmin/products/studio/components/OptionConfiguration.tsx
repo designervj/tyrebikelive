@@ -2,6 +2,9 @@ import React from "react";
 import { Layers, Sparkles, Plus } from "lucide-react";
 import { SectionCard } from "./Common";
 import { ProductOption } from "../utils";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import { useSearchParams } from "next/navigation";
 
 interface OptionConfigurationProps {
   allattributes: any[];
@@ -22,6 +25,12 @@ export function OptionConfiguration({
   onAddOptionValue,
   onRegenerateVariants,
 }: OptionConfigurationProps) {
+  const { allProducts } = useSelector((state: RootState) => state.products);
+  const searchParams = useSearchParams();
+  const editId = searchParams.get("id");
+
+  const prevProduct = allProducts.find((item) => item._id === editId);
+
   return (
     <SectionCard
       icon={<Layers className="text-orange-500" size={16} />}
@@ -110,6 +119,12 @@ export function OptionConfiguration({
                         <div className="flex flex-wrap gap-1.5">
                           {opt.values.map((val) => {
                             const selected = opt.selectedValues.includes(val);
+                            const prevSelected = prevProduct
+                              ? prevProduct?.options
+                                  ?.find((item) => item.label === opt.label)
+                                  ?.selectedValues.includes(val)
+                              : false;
+
                             return (
                               <button
                                 key={val}
@@ -125,6 +140,7 @@ export function OptionConfiguration({
                                       : [...opt.selectedValues, val],
                                   });
                                 }}
+                                disabled={prevSelected}
                                 className={`px-2 py-1 rounded-md text-[9px] font-bold transition-all ${
                                   selected
                                     ? "bg-blue-600 border-blue-600 text-white shadow-sm shadow-blue-100"
