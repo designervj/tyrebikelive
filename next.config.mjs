@@ -10,7 +10,7 @@ const withNextIntl = createNextIntlPlugin();
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // output: "standalone",
+  output: process.platform === "win32" ? undefined : "standalone",
   images: {
     remotePatterns: [
       ...[NEXT_PUBLIC_SERVER_URL /* 'https://example.com' */].map((item) => {
@@ -27,7 +27,6 @@ const nextConfig = {
   redirects,
   transpilePackages: ['date-fns'],
   experimental: {
-    reactCompiler: true,
     viewTransition: false,
   },
   eslint: {
