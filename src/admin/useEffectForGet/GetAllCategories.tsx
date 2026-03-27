@@ -8,7 +8,7 @@ import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 
 export default function GetAllCategories() {
-  const { allCategories, categoryLoading, categoryError } = useSelector(
+  const { allCategories, categoryLoading, hasCategoriesFetched } = useSelector(
     (state: RootState) => state.categories,
   );
 
@@ -19,10 +19,10 @@ export default function GetAllCategories() {
   useEffect(() => {
     if (!user) return;
 
-    if (allCategories.length === 0 && !categoryLoading) {
+    if (!hasCategoriesFetched && !categoryLoading) {
       dispatch(fetchCategories());
     }
-  }, [user, allCategories.length, categoryLoading]);
+  }, [user, hasCategoriesFetched, categoryLoading]);
 
   return null;
 }

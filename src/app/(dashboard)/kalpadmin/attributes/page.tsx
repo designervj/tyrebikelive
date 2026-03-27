@@ -119,10 +119,6 @@ export default function EcommerceAttributesPage() {
     (state: RootState) => state.attributes,
   );
 
-  useEffect(() => {
-    dispatch(fetchAttributes());
-  }, [dispatch]);
-
   const filtered = useMemo(() => {
     const keyword = search.toLowerCase().trim();
     let result = records;
@@ -305,7 +301,9 @@ export default function EcommerceAttributesPage() {
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100">
               <Sparkles size={16} className="text-slate-900" />
             </div>
-            <span className="text-sm font-semibold text-slate-900">{toast}</span>
+            <span className="text-sm font-semibold text-slate-900">
+              {toast}
+            </span>
           </div>
         </div>
       )}
@@ -785,17 +783,17 @@ export default function EcommerceAttributesPage() {
                   {(record.attributes || [])
                     .slice(0, 5)
                     .map((attribute, index) => (
-                        <div
-                          key={`${record._id}-${index}`}
-                          className="flex items-center justify-between rounded-lg border border-slate-100 bg-slate-50/50 px-3 py-2"
-                        >
-                          <span className="text-xs font-medium text-slate-700">
-                            {attribute.label || attribute.key}
-                          </span>
-                          <span className="rounded-md bg-white px-2 py-0.5 text-[10px] font-semibold text-slate-400 shadow-sm">
-                            {attribute.type || "select"}
-                          </span>
-                        </div>
+                      <div
+                        key={`${record._id}-${index}`}
+                        className="flex items-center justify-between rounded-lg border border-slate-100 bg-slate-50/50 px-3 py-2"
+                      >
+                        <span className="text-xs font-medium text-slate-700">
+                          {attribute.label || attribute.key}
+                        </span>
+                        <span className="rounded-md bg-white px-2 py-0.5 text-[10px] font-semibold text-slate-400 shadow-sm">
+                          {attribute.type || "select"}
+                        </span>
+                      </div>
                     ))}
                   {(record.attributes || []).length > 5 && (
                     <p className="pl-3 pt-1 text-xs text-slate-500">

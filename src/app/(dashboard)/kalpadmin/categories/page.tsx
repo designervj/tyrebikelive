@@ -39,7 +39,10 @@ import {
   updateCategory,
   deleteCategory,
 } from "@/redux/slices/categories/categoriesThunk";
-import { CategoryRecord, CategoryType } from "@/redux/slices/categories/categoriesSlices";
+import {
+  CategoryRecord,
+  CategoryType,
+} from "@/redux/slices/categories/categoriesSlices";
 
 type CategoryDraft = {
   name: string;
@@ -153,10 +156,12 @@ export default function CategoriesPage() {
   const { currentProfile, isScopedRoleView } = useAuth();
   const canMutate = canRoleMutateUi(currentProfile);
   const dispatch = useDispatch<AppDispatch>();
-  
-  const { allCategories: categories, categoryLoading: loading, categoryError } = useSelector(
-    (state: RootState) => state.categories
-  );
+
+  const {
+    allCategories: categories,
+    categoryLoading: loading,
+    categoryError,
+  } = useSelector((state: RootState) => state.categories);
 
   const [saving, setSaving] = useState(false);
   const [typeFilter, setTypeFilter] = useState<CategoryType | "">("");
@@ -165,13 +170,10 @@ export default function CategoriesPage() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [toast, setToast] = useState("");
   const [form, setForm] = useState<CategoryDraft>(() => createDraft("product"));
-  const [previewTemplateByCategoryId, setPreviewTemplateByCategoryId] = useState<Record<string, string>>({});
+  const [previewTemplateByCategoryId, setPreviewTemplateByCategoryId] =
+    useState<Record<string, string>>({});
   const [showImportModal, setShowImportModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-
-  useEffect(() => {
-    dispatch(fetchCategories(typeFilter ? { type: typeFilter, includeCounts: "1" } : { includeCounts: "1" }));
-  }, [dispatch, typeFilter]);
 
   useEffect(() => {
     if (categories.length > 0) {
@@ -356,7 +358,10 @@ export default function CategoriesPage() {
                 <FolderTree size={32} className="text-white" />
               </div>
               <div>
-                <h1 className="mb-2 text-4xl font-black tracking-tight text-slate-900" id="category-management-title">
+                <h1
+                  className="mb-2 text-4xl font-black tracking-tight text-slate-900"
+                  id="category-management-title"
+                >
                   Category Management
                 </h1>
                 <p className="max-w-2xl text-sm leading-relaxed text-slate-500">
@@ -428,7 +433,9 @@ export default function CategoriesPage() {
                   <Globe size={20} className="text-slate-600" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-slate-900">{totals.all}</p>
+                  <p className="text-2xl font-bold text-slate-900">
+                    {totals.all}
+                  </p>
                   <p className="text-xs text-slate-500">All Categories</p>
                 </div>
               </div>
@@ -985,7 +992,7 @@ export default function CategoriesPage() {
 
                   {/* Actions */}
                   <div className="flex items-center justify-between gap-2 border-t border-slate-100 pt-4">
-                    <select
+                    {/* <select
                       value={normalizeCategoryTemplateKey(
                         previewTemplateByCategoryId[category._id] ||
                           category.page?.templateKey ||
@@ -1013,7 +1020,7 @@ export default function CategoriesPage() {
                           {template.label}
                         </option>
                       ))}
-                    </select>
+                    </select> */}
 
                     <div className="flex items-center gap-1">
                       <button

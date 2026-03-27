@@ -41,12 +41,14 @@ type CategoryState = {
   allCategories: CategoryRecord[];
   categoryLoading: boolean;
   categoryError: string | null;
+  hasCategoriesFetched: boolean;
 };
 
 const initialState: CategoryState = {
   allCategories: [],
   categoryLoading: false,
   categoryError: null,
+  hasCategoriesFetched: false,
 };
 
 const categorySlice = createSlice({
@@ -68,13 +70,16 @@ const categorySlice = createSlice({
       .addCase(fetchCategories.pending, (state) => {
         state.categoryLoading = true;
         state.categoryError = null;
+        state.hasCategoriesFetched = false;
       })
       .addCase(fetchCategories.fulfilled, (state, action) => {
         state.categoryLoading = false;
         state.allCategories = action.payload;
+        state.hasCategoriesFetched = true;
       })
       .addCase(fetchCategories.rejected, (state, action) => {
         state.categoryLoading = false;
+        state.hasCategoriesFetched = true;
         state.categoryError =
           action.payload?.message || "Failed to fetch categories";
       })
@@ -88,7 +93,8 @@ const categorySlice = createSlice({
       })
       .addCase(createCategory.rejected, (state, action) => {
         state.categoryLoading = false;
-        state.categoryError = action.payload?.message || "Failed to create category";
+        state.categoryError =
+          action.payload?.message || "Failed to create category";
       })
       // Update
       .addCase(updateCategory.pending, (state) => {
@@ -102,7 +108,8 @@ const categorySlice = createSlice({
       })
       .addCase(updateCategory.rejected, (state, action) => {
         state.categoryLoading = false;
-        state.categoryError = action.payload?.message || "Failed to update category";
+        state.categoryError =
+          action.payload?.message || "Failed to update category";
       })
       // Delete
       .addCase(deleteCategory.pending, (state) => {
@@ -116,7 +123,8 @@ const categorySlice = createSlice({
       })
       .addCase(deleteCategory.rejected, (state, action) => {
         state.categoryLoading = false;
-        state.categoryError = action.payload?.message || "Failed to delete category";
+        state.categoryError =
+          action.payload?.message || "Failed to delete category";
       });
   },
 });

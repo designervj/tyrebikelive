@@ -46,6 +46,7 @@ type AttributeState = {
   currentAttribute: AttributeSetRecord | null;
   attributeLoading: boolean;
   attributeError: string | null;
+  hasAttributesFetched: boolean;
 };
 
 const initialState: AttributeState = {
@@ -53,6 +54,7 @@ const initialState: AttributeState = {
   currentAttribute: null,
   attributeLoading: false,
   attributeError: null,
+  hasAttributesFetched: false,
 };
 
 const counterSlice = createSlice({
@@ -74,15 +76,18 @@ const counterSlice = createSlice({
       .addCase(fetchAttributes.pending, (state) => {
         state.attributeLoading = true;
         state.attributeError = null;
+        state.hasAttributesFetched = false;
       })
       .addCase(fetchAttributes.fulfilled, (state, action) => {
         state.attributeLoading = false;
         state.allattributes = action.payload.data;
+        state.hasAttributesFetched = true;
       })
       .addCase(fetchAttributes.rejected, (state, action) => {
         state.attributeLoading = false;
         state.attributeError =
           action.payload?.message || "Failed to fetch attributes";
+        state.hasAttributesFetched = true;
       })
       // Create
       .addCase(createAttributeSet.fulfilled, (state, action) => {
